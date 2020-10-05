@@ -4,6 +4,13 @@
 #
 # This is basically the interface between the Create2 and pyserial
 
+#######ASTI AGV#######
+######################
+# Author :  Son     ##
+# Date:     02102020##
+# Version:  0.0.1   ##
+######################
+
 import serial # type:ignore
 import struct
 
@@ -93,3 +100,20 @@ class SerialCommandInterface(object):
         if self.ser.is_open:
             print('Closing port {} @ {}'.format(self.ser.port, self.ser.baudrate))
             self.ser.close()
+
+    def Check_TTLUART_module(self, Max_USB_port=10):
+        '''return None if no USB TTL UART is plugged, otherwise ID of UART port'''
+        self.index = 1
+        import subprocess
+        while self.index <= Max_USB_port:
+            self.port_id = "/dev/ttyUSB"+str(self.index)
+            self.port_command = "--name=" + self.port_id
+            self.command_find_port = ["udevadm","info",self.port_command,"--attribute-walk"]
+            try:
+                self.raw_string_devices = subprocess.check_output(self.command_find_port,universal_newlines=True)
+                self.result_check_port = self.raw_string_devices.find("CP2102 USB to UART Bridge Controller")
+                break
+            except:
+                self.index = self.index + 1
+                self.port_id = None
+        return self.port_id

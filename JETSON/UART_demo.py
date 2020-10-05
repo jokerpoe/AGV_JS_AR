@@ -7,9 +7,12 @@
 
 from Serial_lib import SerialCommandInterface
 import time
+
 AGV = SerialCommandInterface()
 
 
+a= AGV.Check_TTLUART_module()
+print(a)
 '''
 AGV.open(port='/dev/ttyUSB0', baud=9600)
 time.sleep(2)
@@ -20,7 +23,7 @@ time.sleep(2)
 AGV.close()
 '''
 
-
+'''
 class AGV_robot():
 
     def __init__(self):
@@ -42,5 +45,5 @@ class AGV_robot():
                 self.index = self.index + 1
                 self.port_id = None
         return self.port_id
-
+'''
 AGV= AGV_robot()
