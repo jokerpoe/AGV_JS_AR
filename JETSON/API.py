@@ -40,12 +40,12 @@ class AGV(object):
 
 ###########################Helpful Area###########################
 
-def Speed2Hex(self,input_speed):
+    def Speed2Hex(self,input_speed):
     '''
     Get m/s speed and return Hex in mm/s
     '''
-    input_speed = input_speed * 1000
-    return hex(input_speed)
+        input_speed = input_speed * 1000
+        return hex(input_speed)
 
 ###########################Control Area###########################
     def reset_RunData(self):
