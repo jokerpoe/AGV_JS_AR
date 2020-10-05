@@ -67,10 +67,14 @@ class SerialCommandInterface(object):
         Writes a command to the create. There needs to be an opcode and optionally
         data. Not all commands have data associated with it.
 
-        opcode: see creaet api
+        opcode: see OI
         data: a tuple with data associated with a given opcode (see api)
         """
-        msg = (opcode,)
+        if data:
+            length_data = len(data)
+        else:
+            length_data = 0x00
+        msg = (opcode,length_data,)
         # Sometimes opcodes don't need data. Since we can't add
         # a None type to a tuple, we have to make this check.
         if data:
@@ -86,8 +90,8 @@ class SerialCommandInterface(object):
         data_out = 0
         for data in datas:
             data_out += data
-        data = data ^ OPCODES.XOR_VALUE
-        return struct.unpack('2B',(struct.pack('>1H',data)))
+        data_out = data_out ^ OPCODES.XOR_VALUE
+        return struct.unpack('2B',(struct.pack('>1H',data_out)))
 
 
     def read(self, num_bytes):
