@@ -46,4 +46,4 @@ class AGV_robot():
                 self.port_id = None
         return self.port_id
 '''
-AGV= AGV_robot()
+#AGV= AGV_robot()

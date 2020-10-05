@@ -12,22 +12,22 @@ class Namespace(object):
 BAUD_RATE           = 9600          #Base on "Physical interface" in Data-package MCU and MCP from Nam-san
 
 CONTROL_OP          = Namespace(
-    RESET_MCU               = 0xA4
-    CONTROL_SPEED           = 0X03  #DATA content 4 bytes: 2 high bytes are normal speed, 2 low bytes are slow speed
+    RESET_MCU               = 164, #0xA4,
+    CONTROL_SPEED           = 3 #0x03  #DATA content 4 bytes: 2 high bytes are normal speed, 2 low bytes are slow speed
 
 
 )
 
 INFO_OP             = Namespace(
-    BASIC_BATTERY           = 0X03
-    BASIC_SPEED             = 0X04
-    ERROR_STATUS            = 0X08
+    BASIC_BATTERY           = 3, #0x03
+    BASIC_SPEED             = 4,#0x04
+    ERROR_STATUS            = 8 #0x08
 
 )
 
 OPCODES             = Namespace(
-    START_BYTE              = 0XEE
-    END_BYTE                = 0XAA
-    XOR_VALUE               = 0XFFFF
+    START_BYTE              = 238,#0xEE
+    END_BYTE                = 170,#0xAA
+    XOR_VALUE               = 65535 #0XFFFF
 
 )

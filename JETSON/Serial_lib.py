@@ -38,12 +38,12 @@ class SerialCommandInterface(object):
         """
         self.close()
 
-    def open(self, port, baud=115200, timeout=1):
+    def open(self, port, baud=9600, timeout=1):
         """
         Opens a serial port to the create.
 
         port: the serial port to open, ie, '/dev/ttyUSB0'
-        buad: default is 115200, but can be changed to a lower rate via the create api
+        buad: default is 9600, but can be changed to a lower rate via the create api
         """
         self.ser.port = port
         self.ser.baudrate = baud
@@ -71,17 +71,23 @@ class SerialCommandInterface(object):
         data: a tuple with data associated with a given opcode (see api)
         """
         msg = (opcode,)
-
         # Sometimes opcodes don't need data. Since we can't add
         # a None type to a tuple, we have to make this check.
         if data:
             msg += data
-        msg = OPCODES.START_BYTE + msg + OPCODES.END_BYTE
+        Check_sum = self.Cal_Checksum(msg)
+
+        msg = (OPCODES.START_BYTE,) + msg + Check_sum +  (OPCODES.END_BYTE,)
+
         print(">> write:", msg)
         self.ser.write(struct.pack('B' * len(msg), *msg))
 
-    def Cal_Checksum(self, data):
-        return data ^ OPCODES.XOR_VALUE
+    def Cal_Checksum(self, datas):
+        data_out = 0
+        for data in datas:
+            data_out += data
+        data = data ^ OPCODES.XOR_VALUE
+        return struct.unpack('2B',(struct.pack('>1H',data)))
 
 
     def read(self, num_bytes):
