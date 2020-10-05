@@ -9,11 +9,11 @@ class Namespace(object):
         self.__dict__.update(kwds)
 
 
-BAUD_RATE           = 9600 #Base on "Physical interface" in Data-package MCU and MCP from Nam-san
+BAUD_RATE           = 9600          #Base on "Physical interface" in Data-package MCU and MCP from Nam-san
 
 CONTROL_OP          = Namespace(
     RESET_MCU               = 0xA4
-    CONTROL_SPEED           = 0X03 # DATA content 4 bytes: 2 high bytes are normal speed, 2 low bytes are slow speed
+    CONTROL_SPEED           = 0X03  #DATA content 4 bytes: 2 high bytes are normal speed, 2 low bytes are slow speed
 
 
 )
@@ -28,11 +28,6 @@ INFO_OP             = Namespace(
 OPCODES             = Namespace(
     START_BYTE              = 0XEE
     END_BYTE                = 0XAA
-
-)
-
-CHECKSUM_OP         = Namespace(
     XOR_VALUE               = 0XFFFF
-    SUM_VALUE               = 0X0420
 
 )

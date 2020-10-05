@@ -7,30 +7,30 @@
 
 from Serial_lib import SerialCommandInterface
 import time
-
+from OI import *
 AGV = SerialCommandInterface()
 
 
 a= AGV.Check_TTLUART_module()
 print(a)
-'''
-AGV.open(port='/dev/ttyUSB0', baud=9600)
+
+AGV.open(port=a, baud=BAUD_RATE)
 time.sleep(2)
 AGV.write(0xEE)
 print('Writed 0xEE')
 
 time.sleep(2)
 AGV.close()
-'''
 
 '''
+
 class AGV_robot():
 
     def __init__(self):
         print(self.Check_TTLUART_module(self.Max_USB_port = 10))
     
     def Check_TTLUART_module(self, Max_USB_port):
-        '''return None if no USB TTL UART is plugged, otherwise ID of UART port'''
+        return None if no USB TTL UART is plugged, otherwise ID of UART port
         self.index = 1
         import subprocess
         while self.index <= Max_USB_port:

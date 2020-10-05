@@ -13,7 +13,7 @@
 
 import serial # type:ignore
 import struct
-
+from OI import OPCODES
 
 class SerialCommandInterface(object):
     """
@@ -76,8 +76,13 @@ class SerialCommandInterface(object):
         # a None type to a tuple, we have to make this check.
         if data:
             msg += data
-        # print(">> write:", msg)
+        msg = OPCODES.START_BYTE + msg + OPCODES.END_BYTE
+        print(">> write:", msg)
         self.ser.write(struct.pack('B' * len(msg), *msg))
+
+    def Cal_Checksum(self, data):
+        return data ^ OPCODES.XOR_VALUE
+
 
     def read(self, num_bytes):
         """
@@ -103,7 +108,7 @@ class SerialCommandInterface(object):
 
     def Check_TTLUART_module(self, Max_USB_port=10):
         '''return None if no USB TTL UART is plugged, otherwise ID of UART port'''
-        self.index = 1
+        self.index = 0
         import subprocess
         while self.index <= Max_USB_port:
             self.port_id = "/dev/ttyUSB"+str(self.index)
