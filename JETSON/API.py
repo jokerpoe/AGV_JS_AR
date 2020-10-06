@@ -81,7 +81,6 @@ class AGV(object):
         elif Struct('B').unpack(packet_byte_data[1:2])[0] == 0xA4:
             return 'RESET'
 
-<<<<<<< HEAD
     def Check_STARTnEND_BYTE(self, packet_byte_data):
         '''
         Check the start and end byte
@@ -94,14 +93,12 @@ class AGV(object):
                 return False
         else:
             return False
-=======
     def Speed2Hex(self,input_speed):
     '''
     Get m/s speed and return Hex in mm/s
     '''
         input_speed = input_speed * 1000
         return hex(input_speed)
->>>>>>> 19b2234af4bec57ef6104f76b96278237824c2cd
 
     def Checksum_checker(self, packet_byte_data):
         '''
