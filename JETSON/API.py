@@ -93,7 +93,8 @@ class AGV(object):
                 return False
         else:
             return False
-    def Speed2Hex(self,input_speed):
+
+    def Convert_speed(self,input_speed):
     '''
     Get m/s speed and return Hex in mm/s
     '''
