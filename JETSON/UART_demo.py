@@ -15,5 +15,5 @@ import API
 
 AGV = API.AGV()
 while True:
-    AGV.reset_RunData()
-    time.sleep(2)
+    AGV.Read_ERR_status()
+    time.sleep(3)

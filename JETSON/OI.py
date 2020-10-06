@@ -13,8 +13,7 @@ BAUD_RATE           = 9600          #Base on "Physical interface" in Data-packag
 
 CONTROL_OP          = Namespace(
     RESET_MCU               = 164, #0xA4,
-    CONTROL_SPEED           = 243 #0xA3  #DATA content 4 bytes: 2 high bytes are normal speed, 2 low bytes are slow speed
-
+    CONTROL_SPEED           = (0X5B,0XA3) ,  #DATA content 4 bytes: 2 high bytes are normal speed, 2 low bytes are slow speed
 
 )
 
@@ -30,4 +29,10 @@ OPCODES             = Namespace(
     END_BYTE                = 170,#0xAA
     XOR_VALUE               = 65535 #0XFFFF
 
+)
+
+REQUEST             = Namespace(
+    SPEED_INFO              = 0xA3,
+    BATTERY_INFO            = 0XB5,
+    ERR_STATUS              = (0xB5, 0x08)
 )

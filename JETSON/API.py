@@ -13,8 +13,7 @@ import struct                                   # to collect opcode into frame o
 import time                                     # IF need delay
 from OI import *                                # OPCODEs to process
 from Serial_lib import SerialCommandInterface   # Serial module
-
-
+from struct import Struct
 
 
 
@@ -38,35 +37,103 @@ class AGV(object):
         '''Clean everything before leaving'''
         pass
 
-###########################Helpful Area###########################
+#######################Helpful Cunctions For Control Area########################
 
-def Speed2Hex(self,input_speed):
-    '''
-    Get m/s speed and return Hex in mm/s
-    '''
-    input_speed = input_speed * 1000
-    return hex(input_speed)
+    def Convert_speed(self,input_speed):
+        '''
+        Get m/s speed and return Hex in mm/s
+        '''
+        input_speedN = input_speed[0] * 1000
+        input_speedSL = input_speed[1] * 1000
 
+        return int(input_speedN), int(input_speedSL)
+
+    def Read_respon_status(self):
+        '''
+        Read status from package after send control speed or reset to MCU
+        '''
+        sensor_pkt_len = 8
+
+        time.sleep(0.015)  # wait 15 msec
+        packet_byte_data = self.SCI.read(sensor_pkt_len)
+        print(packet_byte_data)
+
+        if len(packet_byte_data) != sensor_pkt_len:
+            print('[WARN] Package data not 8 bytes long, it is: {}'.format(len(packet_byte_data)))
+        elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data):
+            Control_name = self.Find_control_name(packet_byte_data)
+            Checker = Struct('B').unpack(packet_byte_data[2:3])[0]
+            if Checker == 0x00:
+                print('[INFO] {} control has been completed'.format(Control_name))
+            elif Checker == 0x08:
+                print('[WARN] {} respond pakage has problem'.format(Control_name))
+            else:
+                print('[ERR] {} pakage is wrong format'.format(Control_name))
+        else:
+            print('[ERR] Pakage is wrong lenght and format')
+
+    def Find_control_name(self, packet_byte_data):
+        '''
+        Check the package position from 1-2 to know if the control is reset or change speed
+        '''
+        if Struct('B').unpack(packet_byte_data[1:2])[0] == 0xA3:
+            return 'SPEED'
+        elif Struct('B').unpack(packet_byte_data[1:2])[0] == 0xA4:
+            return 'RESET'
+
+    def Check_STARTnEND_BYTE(self, packet_byte_data):
+        '''
+        Check the start and end byte
+        If true return true, otherwise flase
+        '''
+        if Struct('B').unpack(packet_byte_data[0:1])[0] == OPCODES.START_BYTE:
+            if Struct('B').unpack(packet_byte_data[7:8])[0] == OPCODES.END_BYTE:
+                return True
+            else:
+                return False
+        else:
+            return False
+
+    def Checksum_checker(self, packet_byte_data):
+        '''
+        Calcualtor the check sum from byte 0-4 and compare with checksum
+        in position 5-7. If true return true, otherwise false
+        '''
+        sum1 = Struct('B').unpack(packet_byte_data[0:1])[0]
+        sum2 = Struct('B').unpack(packet_byte_data[1:2])[0]
+        sum3 = Struct('B').unpack(packet_byte_data[3:4])[0]
+        SUM = sum1 + sum2 + sum3
+        Checker = SUM ^ OPCODES.XOR_VALUE
+        print(Checker)
+        if Checker == Struct('>H').unpack(packet_byte_data[5:7])[0]:
+            return True
+        else:
+            return False
+            
 ###########################Control Area###########################
+
     def reset_RunData(self):
         '''
         This command reset MCU (ARDUINO MEGA 2560) RUN DATA
         '''
         self.SCI.write(CONTROL_OP.RESET_MCU, data = (0x01,0x00))
+        self.Read_respon_status()
 
     def reset_BySoftware(self):
         '''
         This command reset MCU (ARDUINO MEGA 2560) BySoftware
         '''
         self.SCI.write(CONTROL_OP.RESET_MCU, data = (0x00,0x01))
+        self.Read_respon_status()
 
     def reset_All(self):
         '''
         This command reset MCU (ARDUINO MEGA 2560) BySoftware and RUN DATA
         '''
         self.SCI.write(CONTROL_OP.RESET_MCU, data = (0x01,0x01))
+        self.Read_respon_status()
 
-    def Change_Normal_Speed(self, speedNormal):
+    def Change_Speed(self, speedNormal, speedSlow):
         '''
         This command control speed of the AGV by sending tit normal speed and slow speed.
         4 bytes: 2 high bytes are normal speed, 2 low bytes are low speed
@@ -75,7 +142,18 @@ def Speed2Hex(self,input_speed):
         - Input speed  m/s
         - mm/s = m/s*1000
         '''
-        Hex_SpeedN = self.Speed2Hex(speedNormal)
-        struct.unpack('2B',(struct.pack('>1h',data_out)))
-        self.SCI.write(CONTROL_OP.CONTROL_SPEED, data = ())
-    
+        Hex_SpeedN, Hex_SpeedSL = self.Convert_speed((speedNormal, speedSlow))
+
+        data_speed = struct.unpack('4B', struct.pack('>2h', Hex_SpeedN, Hex_SpeedSL))
+        self.SCI.write(CONTROL_OP.CONTROL_SPEED, data = data_speed)
+        self.Read_respon_status()
+
+###########################Request Area###########################
+
+    def Read_ERR_status(self):
+        '''
+        Process data to get the status of errors.
+        Read OI to know the OPCODES
+        Note: Frame format inside Data-package from Nam-san.
+        '''
+        self.SCI.write(REQUEST.ERR_STATUS)

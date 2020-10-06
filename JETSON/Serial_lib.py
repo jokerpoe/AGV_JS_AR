@@ -74,14 +74,20 @@ class SerialCommandInterface(object):
             length_data = len(data)
         else:
             length_data = 0x00
-        msg = (opcode,length_data,)
+        if type(opcode) == tuple:
+            msg = (opcode[0],opcode[1],length_data,)
+        else:
+            msg = (opcode,length_data,)
         # Sometimes opcodes don't need data. Since we can't add
         # a None type to a tuple, we have to make this check.
         if data:
             msg += data
+        
+        msg = (OPCODES.START_BYTE,) + msg
+
         Check_sum = self.Cal_Checksum(msg)
 
-        msg = (OPCODES.START_BYTE,) + msg + Check_sum +  (OPCODES.END_BYTE,)
+        msg = msg + Check_sum +  (OPCODES.END_BYTE,)
 
         print(">> write:", msg)
         self.ser.write(struct.pack('B' * len(msg), *msg))
