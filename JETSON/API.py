@@ -171,4 +171,34 @@ class AGV(object):
             print('[WARN] Package data not 11 bytes long, it is: {}'.format(len(packet_byte_data)))
         elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data):
             print('PUT ERR PROCESS INSIDE THIS FUNCTION')
+    def Read_basic_information_batterry(self):
+        '''
+        #########
+        '''
+        self.SCI.write(REQUEST.INFORMATION_BATTERY)
+        sensor_pkl_len=26
+        time.sleep(0.05)
+        packet_byte_data=self.SCI.read(sensor_pkl_len)
+        print(packet_byte_data)
+        if len(packet_byte_data) !=sensor_pkl_len:
+            print("")
+        elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data)
+            print("")
+            Total_voltage             = hex(int(str(packet_byte_data[4])+str(packet_byte_data[5])))
+            Current                   = hex(int(str(packet_byte_data[6])+str(packet_byte_data[7])))
+            The_remaining_capacity    = hex(int(str(packet_byte_data[8])+str(packet_byte_data[9])))
+            Nominal_capacity          = hex(int(str(packet_byte_data[10])+str(packet_byte_data[11])))
+            Cycles                    = hex(int(str(packet_byte_data[12])+str(packet_byte_data[13])))
+            Software_version          = hex(packet_byte_data[14])
+            Rsoc                      = hex(packet_byte_data[15])
+            Fet_control_status        = hex(packet_byte_data[16])
+            Number_of_battery_stirngs = hex(packet_byte_data[17])
+            Number_of_temperature     = hex(packet_byte_data[18])
+            The_first_temperature     = hex(packet_byte_data[19])
+            Second_temperature        = hex(packet_byte_data[20])
+            Third_temperature         = hex(packet_byte_data[21])
+            Fourth_temperature        = hex(packet_byte_data[22])
+            
+        return Total_voltage,Current,The_remaining_capacity,Nominal_capacity,Cycles,Software_version,Rsoc,Fet_control_status,Number_of_battery_stirngs,Number_of_temperature,The_first_temperature,Second_temperature,Third_temperature,Fourth_temperature    
 
+        
