@@ -14,7 +14,7 @@ import time                                     # IF need delay
 from OI import *                                # OPCODEs to process
 from Serial_lib import SerialCommandInterface   # Serial module
 from struct import Struct
-
+from Packages import Data_packs_decoder
 
 
 class AGV(object):
@@ -98,8 +98,8 @@ class AGV(object):
 
     def Checksum_checker(self, packet_byte_data):
         '''
-        Calcualtor the check sum from byte 0-4 and compare with checksum
-        in position 5-7. If true return true, otherwise false
+        Calcualtor the check sum from start byte to data content byte and compare with checksum
+        in position before end byte. If true return true, otherwise false
         '''
         len_pac = len(packet_byte_data)
         index = 0
@@ -108,8 +108,8 @@ class AGV(object):
             SUM += Struct('B').unpack(packet_byte_data[index:index+1])[0]
             index += 1
         Checker = SUM ^ OPCODES.XOR_VALUE
-        print(Checker)
-        print(Struct('>H').unpack(packet_byte_data[len_pac-3:len_pac-1])[0])
+        #print(Checker)
+        #print(Struct('>H').unpack(packet_byte_data[len_pac-3:len_pac-1])[0])
         if Checker == Struct('>H').unpack(packet_byte_data[len_pac-3:len_pac-1])[0]:
             return True
         else:
@@ -171,34 +171,21 @@ class AGV(object):
             print('[WARN] Package data not 11 bytes long, it is: {}'.format(len(packet_byte_data)))
         elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data):
             print('PUT ERR PROCESS INSIDE THIS FUNCTION')
+
     def Read_basic_information_batterry(self):
         '''
         #########
         '''
-        self.SCI.write(REQUEST.INFORMATION_BATTERY)
+        self.SCI.write(REQUEST.BATTERY_INFO)
         sensor_pkl_len=26
         time.sleep(0.05)
         packet_byte_data=self.SCI.read(sensor_pkl_len)
-        print(packet_byte_data)
+        print('<<read: ',packet_byte_data)
         if len(packet_byte_data) !=sensor_pkl_len:
-            print("")
-        elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data)
-            print("")
-            Total_voltage             = hex(int(str(packet_byte_data[4])+str(packet_byte_data[5])))
-            Current                   = hex(int(str(packet_byte_data[6])+str(packet_byte_data[7])))
-            The_remaining_capacity    = hex(int(str(packet_byte_data[8])+str(packet_byte_data[9])))
-            Nominal_capacity          = hex(int(str(packet_byte_data[10])+str(packet_byte_data[11])))
-            Cycles                    = hex(int(str(packet_byte_data[12])+str(packet_byte_data[13])))
-            Software_version          = hex(packet_byte_data[14])
-            Rsoc                      = hex(packet_byte_data[15])
-            Fet_control_status        = hex(packet_byte_data[16])
-            Number_of_battery_stirngs = hex(packet_byte_data[17])
-            Number_of_temperature     = hex(packet_byte_data[18])
-            The_first_temperature     = hex(packet_byte_data[19])
-            Second_temperature        = hex(packet_byte_data[20])
-            Third_temperature         = hex(packet_byte_data[21])
-            Fourth_temperature        = hex(packet_byte_data[22])
-            
-        return Total_voltage,Current,The_remaining_capacity,Nominal_capacity,Cycles,Software_version,Rsoc,Fet_control_status,Number_of_battery_stirngs,Number_of_temperature,The_first_temperature,Second_temperature,Third_temperature,Fourth_temperature    
+            print("[ERR] Wrong data lenght")
+            return None
+        elif self.Check_STARTnEND_BYTE(packet_byte_data):
+            Data_sensor = Data_packs_decoder(packet_byte_data)
+            print(Data_sensor)
 
         
