@@ -15,5 +15,5 @@ import API
 
 AGV = API.AGV()
 while True:
-    AGV.Read_ERR_status()
+    AGV.Read_basic_information_batterry()
     time.sleep(1)

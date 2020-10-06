@@ -184,8 +184,10 @@ class AGV(object):
         if len(packet_byte_data) !=sensor_pkl_len:
             print("[ERR] Wrong data lenght")
             return None
-        elif self.Check_STARTnEND_BYTE(packet_byte_data):
+        elif self.Check_STARTnEND_BYTE(packet_byte_data) self.Checksum_checker(packet_byte_data):
             Data_sensor = Data_packs_decoder(packet_byte_data)
             print(Data_sensor)
+        else:
+            print('[ERR] Wrong sensors format')
 
         
