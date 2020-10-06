@@ -16,4 +16,4 @@ import API
 AGV = API.AGV()
 while True:
     AGV.Read_ERR_status()
-    time.sleep(3)
+    time.sleep(1)

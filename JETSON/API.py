@@ -60,7 +60,7 @@ class AGV(object):
 
         if len(packet_byte_data) != sensor_pkt_len:
             print('[WARN] Package data not 8 bytes long, it is: {}'.format(len(packet_byte_data)))
-        elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data):
+        elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker_ERR(packet_byte_data):
             Control_name = self.Find_control_name(packet_byte_data)
             Checker = Struct('B').unpack(packet_byte_data[2:3])[0]
             if Checker == 0x00:
@@ -86,33 +86,31 @@ class AGV(object):
         Check the start and end byte
         If true return true, otherwise flase
         '''
+        len_pac = len(packet_byte_data)
         if Struct('B').unpack(packet_byte_data[0:1])[0] == OPCODES.START_BYTE:
-            if Struct('B').unpack(packet_byte_data[7:8])[0] == OPCODES.END_BYTE:
+            if Struct('B').unpack(packet_byte_data[len_pac-1:len_pac])[0] == OPCODES.END_BYTE:
                 return True
             else:
                 return False
         else:
             return False
 
-    def Convert_speed(self,input_speed):
-    '''
-    Get m/s speed and return Hex in mm/s
-    '''
-        input_speed = input_speed * 1000
-        return hex(input_speed)
 
     def Checksum_checker(self, packet_byte_data):
         '''
         Calcualtor the check sum from byte 0-4 and compare with checksum
         in position 5-7. If true return true, otherwise false
         '''
-        sum1 = Struct('B').unpack(packet_byte_data[0:1])[0]
-        sum2 = Struct('B').unpack(packet_byte_data[1:2])[0]
-        sum3 = Struct('B').unpack(packet_byte_data[3:4])[0]
-        SUM = sum1 + sum2 + sum3
+        len_pac = len(packet_byte_data)
+        index = 0
+        SUM = 0
+        while index < len_pac - 3:
+            SUM += Struct('B').unpack(packet_byte_data[index:index+1])[0]
+            index += 1
         Checker = SUM ^ OPCODES.XOR_VALUE
         print(Checker)
-        if Checker == Struct('>H').unpack(packet_byte_data[5:7])[0]:
+        print(Struct('>H').unpack(packet_byte_data[len_pac-3:len_pac-1])[0])
+        if Checker == Struct('>H').unpack(packet_byte_data[len_pac-3:len_pac-1])[0]:
             return True
         else:
             return False
@@ -164,3 +162,13 @@ class AGV(object):
         Note: Frame format inside Data-package from Nam-san.
         '''
         self.SCI.write(REQUEST.ERR_STATUS)
+        sensor_pkt_len = 11
+        time.sleep(0.015)  # wait 15 msec
+        packet_byte_data = self.SCI.read(sensor_pkt_len)
+        print(packet_byte_data)
+
+        if len(packet_byte_data) != sensor_pkt_len:
+            print('[WARN] Package data not 11 bytes long, it is: {}'.format(len(packet_byte_data)))
+        elif self.Check_STARTnEND_BYTE(packet_byte_data) and self.Checksum_checker(packet_byte_data):
+            print('PUT ERR PROCESS INSIDE THIS FUNCTION')
+
